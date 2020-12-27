@@ -6,7 +6,7 @@ from IPython.display import HTML
 matplotlib.rcParams['animation.writer'] = 'ffmpeg'
 
 
-NBODIES = 2
+NBODIES = 3
 
 #The force acting on one body is returned by this
 def accelG(pos1,pos2,m1,m2):
@@ -15,27 +15,55 @@ def accelG(pos1,pos2,m1,m2):
     accel= G * m1 * m2 /np.linalg.norm(d)**3* d
     
     return(accel)
+def massesf():
+    return([1,1,1])
 
 #Differential equation for two bodies
 def dudt2D(U,t):
-    pos1 = np.array([U[0],U[1]]) 
+	#U = X,Y,... ,Vx,Vy, ...
+    pos1 = np.array([U[0],U[1]])
     pos2 = np.array([U[2],U[3]])
-    accelxy1 = accelG(pos1, pos2, 1, 20)
-    accelxy2 = accelG(pos2, pos1, 20, 1)
-    #return [U[2],U[3], accelxy[0], accelxy[1]]
-    return [U[4],U[5],U[6], U[7], accelxy1[0], accelxy1[1], accelxy2[0], accelxy2[1]]
-init1 = [0, 1]
-init2 = [0, 0]
-initv1 = [5, 0]
+    pos = np.array(U[:int(len(U)/2)])
+    #print(pos)
 
-initv2 = [0, 0]
+    postuple = []
+    for i in range(int(len(pos)/2)):
+        postuple.append( np.array( [pos[2*i], pos[2*(i)+1] ] ) )
+    masses = massesf()
+    accelout = []
+    for planet,i  in zip(postuple,range(len(postuple))):
+        postuplecopy = list(postuple)
+        massescopy = list(masses)
+        postuplecopy.pop(i)
+        massescopy.pop(i)
 
+        for otherplanet,j in zip(postuplecopy,range(len(postuplecopy))) :
+             accel = accelG(planet, otherplanet, masses[i], massescopy[j])
+             accelout.append(accel[0])
+             accelout.append(accel[1])
+
+    acceleration_vectors = np.split(np.array(accelout),3)
+    artifsplit = [np.split(k,2) for k in acceleration_vectors]
+    summedaccel = [sum(k) for k in artifsplit]
+    outputaccel = list(np.array(summedaccel).ravel()) 
+
+    Speeds = U[int(len(U)/2):]
+    return(np.concatenate([Speeds, outputaccel] ) )
+init1 = [0.97000436, -0.24308753]
+init2 = [-0.97000436, 0.24308753]
+init3 = [0, 0]
+init = [init1[0], init1[1], init2[0], init2[1], init3[0], init3[1] ]
+initv3 = [-0.93240737, -0.86473146]
+initv1 = [0.93240737*0.5, 0.86473146*0.5]
+initv2 = [0.93240737*0.5, 0.86473146*0.5]
+
+
+
+initV = [initv1[0], initv1[1], initv2[0], initv2[1], initv3[0], initv3[1] ]
 #U0 = [initx,inity, initvx, initvy]
+U0 =np.array( init + initV )
 
-U0 = [ init1[0],  init1[1],  init2[0],  init2[1],
-      initv1[0], initv1[1], initv2[0], initv2[1] ]
-
-t = np.linspace(0,2,500)
+t = np.linspace(0,2,15000)
 
 Us = odeint(dudt2D, U0, t)
 
