@@ -52,9 +52,12 @@ y6 = Us[:,5]
 # animation function. This is called sequentially
 def drawframe(n):
     n = 1 if n < 2 else n
+    if n%100 == 0:
+        print("Animated " + str(n) +"/"+str(len(t)))
     #line1.set_data(t, y1)
     #line2.set_data(t, y2)
-    a = n-500 if n > 501 else 0 
+    trail_size = 150
+    a = n-trail_size if n > trail_size+1 else 0 
     line3.set_data(y1[a:n],y2[a:n])
     line4.set_data(y3[a:n],y4[a:n])
     line5.set_data(y5[a:n],y6[a:n])
