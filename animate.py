@@ -9,6 +9,7 @@ import main
 matplotlib.rcParams['animation.writer'] = 'ffmpeg'
 
 Us, t = main.openfile()
+nbodies = Us.shape[1]
 
 import seaborn as sns
 #https://jckantor.github.io/CBE30338/A.03-Animation-in-Jupyter-Notebooks.html
@@ -23,8 +24,8 @@ ax2 = plt.subplot(1,2,2)
 #ax1.set_xlabel('Time')
 #ax1.set_ylabel('Magnitude')
 
-ax2.set_xlim((-2.5,2.5))
-ax2.set_ylim((-2.5,2.5))
+ax2.set_xlim((min(Us[:,0]),max(Us[:,0])))
+ax2.set_ylim((min(Us[:,1]),max(Us[:,1])))
 ax2.set_xlabel('X')
 ax2.set_ylabel('Y')
 ax2.set_title('Position in time')
@@ -38,6 +39,7 @@ ax2.set_title('Position in time')
 pt1, = ax2.plot([], [], 'g.', ms=20)
 pt2, = ax2.plot([], [], 'b.', ms=20)
 pt3, = ax2.plot([], [], 'r.', ms=20)
+pt4, = ax2.plot([], [], 'r.', ms=20)
 line3, = ax2.plot([], [], 'g', lw=2)
 line4, = ax2.plot([], [], 'b', lw=2)
 line5, = ax2.plot([], [], 'r', lw=2)
@@ -48,6 +50,8 @@ y3 = Us[:,2]
 y4 = Us[:,3]
 y5 = Us[:,4]
 y6 = Us[:,5]
+y7 = Us[:,6]
+y8 = Us[:,7]
 
 # animation function. This is called sequentially
 def drawframe(n):
@@ -61,10 +65,12 @@ def drawframe(n):
     line3.set_data(y1[a:n],y2[a:n])
     line4.set_data(y3[a:n],y4[a:n])
     line5.set_data(y5[a:n],y6[a:n])
+    
 	
     pt1.set_data(y1[n],y2[n])
     pt2.set_data(y3[n],y4[n])
     pt3.set_data(y5[n],y6[n])
+    pt4.set_data(y7[n],y8[n])
    # txt_title.set_text('Frame = {0:4d}'.format(n))
     return (line3,line4,line5)
 

@@ -5,7 +5,7 @@ from matplotlib import animation, rc
 from IPython.display import HTML
 matplotlib.rcParams['animation.writer'] = 'ffmpeg'
 
-NBODIES = 3
+NBODIES = 4
 
 
 def openfile():
@@ -26,20 +26,22 @@ def massesf(nbodies=3, testcase="Stable"):
     if testcase == "Stable" and nbodies == 3:
         return([1,1,1])
     else: 
-        return(list(np.random.rand(nbodies) ) )
+        return([1]*nbodies)
 
 def InitialConditions(nbodies = 3, testcase = "Stable"):
     if testcase == "Stable" and nbodies == 3:
         #x1=−x2=0.97000436−0.24308753i,x3=0;~V=  ̇x3=−2  ̇x1=−2  ̇x2=−0.93240737−0.86473146i
         init = [0.97000436, -0.24308753,
                -0.97000436, 0.24308753,
+                         0, 0,
                          0, 0] 
         initV = [  0.93240737*0.5, 0.86473146*0.5, 
                 0.93240737*0.5, 0.86473146*0.5, 
-                -0.93240737, -0.86473146,]
+                -0.93240737, -0.86473146,
+                0, 0]
     else:
-        init  = list(np.random.rand(nbodies*2)*5 )
-        initV = list(np.random.rand(nbodies*2)*5 )
+        init  = list(np.random.rand(nbodies*2)*5-2.5 )
+        initV = list(np.random.rand(nbodies*2)*5 - 2.5 )
     U0 =np.array( init + initV )
     #U0 = [initx,inity, initvx, initvy]
     return (U0)
@@ -50,25 +52,22 @@ def dudt2D(U,t):
     pos = np.array(U[:int(len(U)/2)])
     nbodies = int(len(pos)/2)
 
-    masses = massesf()
+    masses = massesf(nbodies = nbodies)
     accelout = []
-    postuple = np.split(pos,len(pos)/2)
+    posdouble = np.split(pos,nbodies)
 
-    for planet,i  in zip(postuple,range(len(postuple))):
+    for planet,i  in zip(posdouble,range(nbodies)):
         #could replace with postuplecopy = np.delete(postuple,i) ? index error
-        postuplecopy = list(postuple)
+        postuplecopy = list(posdouble)
         massescopy = list(masses)
         postuplecopy.pop(i)
         massescopy.pop(i)
 
-        for otherplanet,j in zip(postuplecopy,range(len(postuplecopy))) :
+        for otherplanet,j in zip(postuplecopy,range(nbodies-1)) :
             accel = accelG(planet, otherplanet, masses[i], massescopy[j])
-            accelout.append(accel[0])
-            accelout.append(accel[1])
+            accelout.append(np.array(accel))
 
-    acceleration_vectors = np.split(np.array(accelout),nbodies)
-    artifsplit = [np.split(k,2) for k in acceleration_vectors]
-    summedaccel = [sum(k) for k in artifsplit]
+    summedaccel = [sum(accelout[i:i+nbodies-1]) for i in range(0,len(accelout),nbodies-1)]
     outputaccel = list(np.array(summedaccel).ravel()) 
 
     Speeds = U[int(len(U)/2):]
@@ -77,8 +76,8 @@ def dudt2D(U,t):
 
     
 #U0 = [initx,inity, initvx, initvy]
-U0 = InitialConditions()
-t = np.linspace(0,10,1000)
+U0 = InitialConditions(nbodies=NBODIES)
+t = np.linspace(0,100,500)
 
 Us = odeint(dudt2D, U0, t)
 
