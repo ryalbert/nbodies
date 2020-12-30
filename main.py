@@ -38,7 +38,7 @@ def InitialConditions(nbodies=3, testcase="Default"):
                  0.93240737*0.5, 0.86473146*0.5, 
                 -0.93240737    ,-0.86473146     ]
     else:
-        seed = 100 * np.random.randint(10000)
+        seed = np.random.randint(100000)
         print("Seed chosen, in case ya like the setup :" + str(seed))
         initU  = list( np.random.RandomState(seed).rand(nbodies*2)  * 5 - 2.5 )
         initV = list( np.random.RandomState(seed+1).rand(nbodies*2)* 5 - 2.5 )
