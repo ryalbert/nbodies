@@ -9,23 +9,18 @@ import main
 matplotlib.rcParams['animation.writer'] = 'ffmpeg'
 
 Us, t = main.openfile()
-nbodies = Us.shape[1]
+nbodies = int(Us.shape[1]/4)
 
 import seaborn as sns
 #https://jckantor.github.io/CBE30338/A.03-Animation-in-Jupyter-Notebooks.html
 # create a figure and axes
 fig = plt.figure(figsize=(12,5))
-#ax1 = plt.subplot(1,2,1)   
-ax2 = plt.subplot(1,2,2)
+ax2 = plt.subplot(1,1,1)
 
 # set up the subplots as needed
-#ax1.set_xlim(( 0, 2))            
-#ax1.set_ylim((-2, 2))
-#ax1.set_xlabel('Time')
-#ax1.set_ylabel('Magnitude')
-
-ax2.set_xlim((min(Us[:,0]),max(Us[:,0])))
-ax2.set_ylim((min(Us[:,1]),max(Us[:,1])))
+bound=np.max(np.abs(Us[:,:nbodies*2])) * 1.10
+ax2.set_xlim(-bound,bound)
+ax2.set_ylim(-bound,bound)
 ax2.set_xlabel('X')
 ax2.set_ylabel('Y')
 ax2.set_title('Position in time')
@@ -34,45 +29,37 @@ ax2.set_title('Position in time')
 # initially empty, and will be given new values for each frame
 # in the animation.
 #txt_title = ax1.set_title('')
-#line1, = ax1.plot([], [], 'b', lw=2)     # ax.plot returns a list of 2D line objects
-#line2, = ax1.plot([], [], 'r', lw=2)
-pt1, = ax2.plot([], [], 'g.', ms=20)
-pt2, = ax2.plot([], [], 'b.', ms=20)
-pt3, = ax2.plot([], [], 'r.', ms=20)
-pt4, = ax2.plot([], [], 'r.', ms=20)
-line3, = ax2.plot([], [], 'g', lw=2)
-line4, = ax2.plot([], [], 'b', lw=2)
-line5, = ax2.plot([], [], 'r', lw=2)
 
-y1 = Us[:,0]
-y2 = Us[:,1]
-y3 = Us[:,2]
-y4 = Us[:,3]
-y5 = Us[:,4]
-y6 = Us[:,5]
-y7 = Us[:,6]
-y8 = Us[:,7]
+
+yi = []
+linei = []
+pti = []
+for i in range(nbodies):
+    color=next(ax2._get_lines.prop_cycler)['color']
+    linei.append(ax2.plot([],[],    color = color, lw=2) )
+    yi.append(Us[:,2*i])
+    yi.append(Us[:,2*i+1])
+    pti.append(ax2.plot(  [],[],'.',color = color,ms=20))
+#y1 = Us[:,0]
+
 
 # animation function. This is called sequentially
 def drawframe(n):
     n = 1 if n < 2 else n
-    if n%100 == 0:
-        print("Animated " + str(n) +"/"+str(len(t)))
+
+    print("Animated " + str(n) +"/"+str(len(t))) if n%100 == 0 else 0
     #line1.set_data(t, y1)
     #line2.set_data(t, y2)
-    trail_size = 150
+    trail_size = 50
     a = n-trail_size if n > trail_size+1 else 0 
-    line3.set_data(y1[a:n],y2[a:n])
-    line4.set_data(y3[a:n],y4[a:n])
-    line5.set_data(y5[a:n],y6[a:n])
-    
-	
-    pt1.set_data(y1[n],y2[n])
-    pt2.set_data(y3[n],y4[n])
-    pt3.set_data(y5[n],y6[n])
-    pt4.set_data(y7[n],y8[n])
+    for i in range(nbodies):
+        linei[i][0].set_data(yi[2*i][a:n], yi[2*i+1][a:n])
+        pti[i][0].set_data(yi[2*i][n],yi[2*i+1][n])
+    #line3.set_data(y1[a:n],y2[a:n])    
+    # pt1.set_data(y1[n],y2[n])
+
    # txt_title.set_text('Frame = {0:4d}'.format(n))
-    return (line3,line4,line5)
+    return tuple(linei[i][0] for i in range(nbodies))
 
 
 from matplotlib import animation

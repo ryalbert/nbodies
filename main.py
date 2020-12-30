@@ -5,7 +5,7 @@ from matplotlib import animation, rc
 from IPython.display import HTML
 matplotlib.rcParams['animation.writer'] = 'ffmpeg'
 
-NBODIES = 4
+NBODIES = 7
 
 
 def openfile():
@@ -33,12 +33,10 @@ def InitialConditions(nbodies = 3, testcase = "Stable"):
         #x1=−x2=0.97000436−0.24308753i,x3=0;~V=  ̇x3=−2  ̇x1=−2  ̇x2=−0.93240737−0.86473146i
         init = [0.97000436, -0.24308753,
                -0.97000436, 0.24308753,
-                         0, 0,
-                         0, 0] 
+                         0, 0]
         initV = [  0.93240737*0.5, 0.86473146*0.5, 
                 0.93240737*0.5, 0.86473146*0.5, 
-                -0.93240737, -0.86473146,
-                0, 0]
+                -0.93240737, -0.86473146]
     else:
         init  = list(np.random.rand(nbodies*2)*5-2.5 )
         initV = list(np.random.rand(nbodies*2)*5 - 2.5 )
@@ -77,7 +75,7 @@ def dudt2D(U,t):
     
 #U0 = [initx,inity, initvx, initvy]
 U0 = InitialConditions(nbodies=NBODIES)
-t = np.linspace(0,100,500)
+t = np.linspace(0,300,500)
 
 Us = odeint(dudt2D, U0, t)
 
