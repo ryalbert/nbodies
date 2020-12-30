@@ -1,4 +1,5 @@
-N body solver in Python, as basic as can be.
+N body solver in Python, as basic as can be. The default execution computes the "RA remarkable periodic solution of the three-body problem in the case of equal masses" by Alain Chenciner and Richard Montgomery 
+https://arxiv.org/abs/math/0011268
 
 Could do : 
 - Show computed animation in real time via gumpy
